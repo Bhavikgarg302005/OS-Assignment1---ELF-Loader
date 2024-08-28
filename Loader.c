@@ -25,23 +25,27 @@ void load_and_run_elf(char** exe) {
   // 1. Load entire binary content into the memory from the ELF file.
   if(fd<0){
    perror("Error in opening the executable file");
+   loader_cleanup();
    exit(1);
   }
   int size1=sizeof(Elf32_Ehdr);
   ehdr=(Elf32_Ehdr *)malloc(size1);
   if(ehdr==NULL){
     perror("Space Allocation not done for elf header");
+    loader_cleanup();
     exit(1);
   }
   int read1=read(fd,ehdr,size1);
   if(read1!=size1){
     perror("Cannnot read properly elf header");
+    loader_cleanup();
     exit(1);
   }
   
   int l=lseek(fd,ehdr->phoff,SEEK_SET);
   if(l==-1){
      perror("Error");
+     loader_cleanup();
      exit(1);
   }
   // 2. Iterate through the PHDR table and find the section of PT_LOAD type that contains the address of the entrypoint method in fib.c
@@ -49,11 +53,14 @@ void load_and_run_elf(char** exe) {
   phdr=(Elf32_Phdr *)malloc(ehdr->phnum*ehdr->e_phentsize);
   if(phdr==NULL){
    perror("Space Allocation not done for program header table");
+   loader_cleanup();
+   exit(1);
   }
   int size2=ehdr.phnum*e_phentsize;
   int read2=read(fd,phdr,size2);
   if(read2!=size2){
     perror("Cannnot read properly program header table");
+    loader_cleanup();
     exit(1);
   }
   // 3. Allocate memory of the size "p_memsz" using mmap function and then copy the segment content
@@ -78,7 +85,8 @@ void load_and_run_elf(char** exe) {
      printf("User _start return value = %d\n",result);
   }
   else{
-   perror("Address Not found\n");
+   printf("Address Not found\n");
+   loader_cleanup();
    exit(1);
   }
   
