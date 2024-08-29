@@ -10,9 +10,11 @@ int fd;
 void loader_cleanup() {
   if(ehdr){
     free(ehdr);
+    ehdr=NULL;
   }
   if(phdr){
     free(phdr);
+    phdr=NULL;
   }
   close(fd);
 }
@@ -72,15 +74,13 @@ void load_and_run_elf(char** exe) {
      void *virtual_mem=mmap((void *)phdr[i].p_vaddr, phdr[i].p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS ,0 ,0);
      if(virtual_mem == MAP_FAILED){
       perror("Cannot load data in memory");
-      loader_cleanup();
       exit(1);
      }
      lseek(fd,phdr[i].p_offset,SEEK_SET);
      int size3=phdr[i].p_memsz;
      int read3=read(fd,virtual_mem,size3);
-     if(size3!=read3){
+     if(read3<0){
        perror("Segment cannot be loaded properly");
-       loader_cleanup();
        exit(1);
      }
     }
