@@ -52,7 +52,7 @@ void load_and_run_elf(char** exe) {
   }
   // 2. Iterate through the PHDR table and find the section of PT_LOAD type that contains the address of the entrypoint method in fib.c
   //read Pheader;
-  phdr=(Elf32_Phdr *)malloc(ehdr->e_phnum*ehdr->e_phentsize);
+  phdr=(Elf32_Phdr *)malloc(ehdr->e_phnum*sizeof(Elf32_Phdr));
   int size2=ehdr->e_phnum*ehdr->e_phentsize;
   if(phdr==NULL){
    perror("Space Allocation not done for program header table");
