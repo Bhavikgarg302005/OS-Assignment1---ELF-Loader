@@ -1,7 +1,7 @@
 #include "loader.h"
 
-Elf32_Ehdr *ehdr;/the pointer to an instance of struct Elf32_Ehdr
-Elf32_Phdr *phdr;/the pointer to an instance of struct Elf32_Phdr which will be used for storing the program headers
+Elf32_Ehdr *ehdr;//the pointer to an instance of struct Elf32_Ehdr
+Elf32_Phdr *phdr;//the pointer to an instance of struct Elf32_Phdr which will be used for storing the program headers
 int fd;
 
 /*
