@@ -75,14 +75,15 @@ void load_and_run_elf(char** exe) {
   }
   //13.Iterate through the PHDR table and find the section of PT_LOAD type that contains the address of the entrypoint method in fib.c
   for(int i=0;i<ehdr->e_phnum;i++){
-    if(phdr[i].p_type==PT_LOAD){
+    if(phdr[i].p_type==PT_LOAD && (phdr[i].p_vaddr)<=ehdr->e_entry && (ehdr->e_entry<=phdr[i].p_vaddr+phdr[i].p_memsz)){
      //14.Allocate memory of the size "p_memsz" using mmap function and then copy the segment content
-     void *virtual_mem=mmap((void *)phdr[i].p_vaddr, phdr[i].p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS ,0 ,0);
+     void *virtual_mem=mmap(NULL, phdr[i].p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS ,0 ,0);
      //15.Error checking is space allocated correctly:
      if(virtual_mem == MAP_FAILED){
       perror("Cannot load data in memory");
       exit(1);
      }
+     ehdr->e_entry=virtual_mem+(ehdr->e_entry-phdr[i].p_vaddr);
      //16.Moving fd to each phdr[i].offset so as to copy the segment:
      int xyz=lseek(fd,phdr[i].p_offset,SEEK_SET);
      //17.Error in moving fd to phdr[i].offset
