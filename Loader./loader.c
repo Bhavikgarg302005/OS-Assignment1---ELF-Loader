@@ -77,11 +77,12 @@ void load_and_run_elf(char** exe) {
   //13.Iterate through the PHDR table and find the section of PT_LOAD type that contains the address of the entrypoint method in fib.c
   void *rx;
   int check=0;
+  void *virtual_mem;
   for(int i=0;i<ehdr->e_phnum;i++){
     //Finding segment to be loaded:
     if(phdr[i].p_type==PT_LOAD && (phdr[i].p_vaddr)<=ehdr->e_entry && (ehdr->e_entry<=phdr[i].p_vaddr+phdr[i].p_memsz)){
      //14.Allocate memory of the size "p_memsz" using mmap function and then copy the segment content
-     void *virtual_mem=mmap(NULL, phdr[i].p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS ,0 ,0);
+     virtual_mem=mmap(NULL, phdr[i].p_memsz, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS ,0 ,0);
      //15.Error checking is space allocated correctly:
      if(virtual_mem == MAP_FAILED){
       printf("Cannot load data in memory");
@@ -96,6 +97,7 @@ void load_and_run_elf(char** exe) {
      if(xyz==-1){
       printf("Error in reading");
       loader_cleanup();
+      munmap(virtual_mem,sizeof(virtual_mem));
       exit(1);
      }
      //18.coping the segment 
@@ -104,6 +106,8 @@ void load_and_run_elf(char** exe) {
      //19.Error checking 
      if(read3<0){
        printf("Segment cannot be loaded properly");
+       loader_cleanup();
+       munmap(virtual_mem,sizeof(virtual_mem));
        exit(1);
      }
      check++;
@@ -112,6 +116,8 @@ void load_and_run_elf(char** exe) {
   //checking wheather segment is found or not:
   if(check==0){
      printf("Load segment not founded\n");
+     loader_cleanup();
+     munmap(virtual_mem,sizeof(virtual_mem));
      exit(1);
   }
   //20.Typecasting the address to that of function pointer matching "_start" method in fib.c.
@@ -120,5 +126,6 @@ void load_and_run_elf(char** exe) {
   int result = _start();
   printf("User _start return value = %d\n",result);
   loader_cleanup();
+  munmap(virtual_mem,sizeof(virtual_mem));
 }
 
