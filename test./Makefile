@@ -2,6 +2,7 @@
 all:
 	gcc -m32 -no-pie -nostdlib -o fib fib.c
 #Provide the command for cleanup
+clean:
+	-@rm -f fib 
 
-	
 	
