@@ -76,6 +76,7 @@ void load_and_run_elf(char** exe) {
   }
   //13.Iterate through the PHDR table and find the section of PT_LOAD type that contains the address of the entrypoint method in fib.c
   void *rx;
+  int check=0;
   for(int i=0;i<ehdr->e_phnum;i++){
     //Finding segment to be loaded:
     if(phdr[i].p_type==PT_LOAD && (phdr[i].p_vaddr)<=ehdr->e_entry && (ehdr->e_entry<=phdr[i].p_vaddr+phdr[i].p_memsz)){
@@ -105,7 +106,13 @@ void load_and_run_elf(char** exe) {
        printf("Segment cannot be loaded properly");
        exit(1);
      }
+     check++;
     }
+  }
+  //checking wheather segment is found or not:
+  if(check==0){
+     printf("Load segment not founded\n");
+     exit(1);
   }
   //20.Typecasting the address to that of function pointer matching "_start" method in fib.c.
   int (*_start)(void) = (int (*)(void))(rx);
